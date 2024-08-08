@@ -16,10 +16,10 @@ services:
       - ./init-database.sh:/docker-entrypoint-initdb.d/init-database.sh 
       - postgres_volume:/var/lib/postgresql/data
 
-  # migrator:
-  #   build:
-  #     context: .
-  #     dockerfile: migration.Dockerfile
-  #   restart: on-failure
-  #   environment:
-  #     DB_HOST: pg
+  migrator:
+    build:
+      context: .
+      dockerfile: migration.Dockerfile
+    restart: on-failure
+    environment:
+      DB_HOST: pg
