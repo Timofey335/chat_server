@@ -1,4 +1,4 @@
-package repository
+package service
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/Timofey335/chat-server/internal/model"
 )
 
-type ChatRepository interface {
+type ChatService interface {
 	CreateChat(ctx context.Context, chat *model.Chat) (int64, error)
 	DeleteChat(ctx context.Context, chatId int64) (*emptypb.Empty, error)
 	SendMessage(ctx context.Context, message *model.Message) (*emptypb.Empty, error)
