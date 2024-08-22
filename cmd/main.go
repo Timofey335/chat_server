@@ -13,7 +13,6 @@ import (
 
 	chatApi "github.com/Timofey335/chat-server/internal/api/chat"
 	"github.com/Timofey335/chat-server/internal/repository/chat"
-	"github.com/Timofey335/chat-server/internal/service"
 	chatService "github.com/Timofey335/chat-server/internal/service/chat"
 	desc "github.com/Timofey335/chat-server/pkg/chat_server_v1"
 )
@@ -22,11 +21,6 @@ const (
 	grpcPort = 50051
 	dbDSN    = "host=localhost port=54321 dbname=chats user=user password=userpassword sslmode=disable"
 )
-
-type server struct {
-	desc.UnimplementedChatServerV1Server
-	chatService service.ChatService
-}
 
 func main() {
 	ctx := context.Background()
@@ -53,31 +47,3 @@ func main() {
 		log.Fatalf(color.RedString("failed to serve: %v", err))
 	}
 }
-
-// func (s *server) CreateChat(ctx context.Context, req *desc.CreateChatRequest) (*desc.CreateChatResponse, error) {
-// 	chatObj, err := s.chatService.CreateChat(ctx, converter.ToChatCreateFromDesc(req))
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return &desc.CreateChatResponse{
-// 		Id: chatObj,
-// 	}, nil
-// }
-
-// func (s *server) DeleteChat(ctx context.Context, req *desc.DeleteChatRequest) (*emptypb.Empty, error) {
-// 	_, err := s.chatService.DeleteChat(ctx, req.Id)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return &emptypb.Empty{}, nil
-// }
-
-// func (s *server) SendMessage(ctx context.Context, req *desc.SendMessageRequest) (*emptypb.Empty, error) {
-// 	_, err := s.chatService.SendMessage(ctx, converter.ToSendMessageFromDesc(req))
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return &emptypb.Empty{}, nil
-// }
