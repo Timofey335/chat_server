@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"flag"
 	"log"
 	"net"
 
@@ -12,26 +12,44 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	chatApi "github.com/Timofey335/chat-server/internal/api/chat"
+	"github.com/Timofey335/chat-server/internal/config"
+	"github.com/Timofey335/chat-server/internal/config/env"
 	"github.com/Timofey335/chat-server/internal/repository/chat"
 	chatService "github.com/Timofey335/chat-server/internal/service/chat"
 	desc "github.com/Timofey335/chat-server/pkg/chat_server_v1"
 )
 
-const (
-	grpcPort = 50051
-	dbDSN    = "host=localhost port=54321 dbname=chats user=user password=userpassword sslmode=disable"
-)
+var configPath string
+
+func init() {
+	flag.StringVar(&configPath, "config-path", ".env", "path to config file")
+}
 
 func main() {
+	flag.Parse()
 	ctx := context.Background()
 
-	pool, err := pgxpool.Connect(ctx, dbDSN)
+	if err := config.Load(configPath); err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+
+	pgConfig, err := env.NewPGConfig()
+	if err != nil {
+		log.Fatalf("failed to get pg config: %v", err)
+	}
+
+	grpcConfig, err := env.NewGRPCConfig()
+	if err != nil {
+		log.Fatalf("failed to get grpc config: %v", err)
+	}
+
+	pool, err := pgxpool.Connect(ctx, pgConfig.DSN())
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
 	defer pool.Close()
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", grpcPort))
+	lis, err := net.Listen("tcp", grpcConfig.Address())
 	if err != nil {
 		log.Fatalf(color.RedString("failed listen: %v", err))
 	}

@@ -29,7 +29,7 @@ func (r *repo) CreateChat(ctx context.Context, chat *model.Chat) (int64, error) 
 		return 0, err
 	}
 
-	log.Println(color.BlueString("create chat: %v, with ctx: %v", chat.Name, ctx))
+	log.Println(color.BlueString("created chat: %v, with ctx: %v", chat.Name, ctx))
 
 	return chatId, nil
 }
