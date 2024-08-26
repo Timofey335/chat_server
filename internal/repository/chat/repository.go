@@ -6,9 +6,9 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/fatih/color"
-	"github.com/jackc/pgx/v4/pgxpool"
 	"google.golang.org/protobuf/types/known/emptypb"
 
+	"github.com/Timofey335/chat-server/internal/client/db"
 	"github.com/Timofey335/chat-server/internal/model"
 	"github.com/Timofey335/chat-server/internal/repository"
 )
@@ -29,10 +29,10 @@ const (
 )
 
 type repo struct {
-	db *pgxpool.Pool
+	db db.Client
 }
 
-func NewChat(db *pgxpool.Pool) repository.ChatRepository {
+func NewChat(db db.Client) repository.ChatRepository {
 	return &repo{db: db}
 }
 
@@ -51,7 +51,12 @@ func (r *repo) CreateChat(ctx context.Context, chat *model.Chat) (int64, error) 
 		log.Fatalf("failed to build query: %v", err)
 	}
 
-	if err = r.db.QueryRow(ctx, query, args...).Scan(&chatId); err != nil {
+	q := db.Query{
+		Name:     "chat_repository.CreateChat",
+		QueryRaw: query,
+	}
+
+	if err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&chatId); err != nil {
 		return 0, err
 	}
 
@@ -74,7 +79,12 @@ func (r *repo) DeleteChat(ctx context.Context, chatId int64) (*emptypb.Empty, er
 		log.Fatalf("failed to build query: %v", err)
 	}
 
-	err = r.db.QueryRow(ctx, query, args...).Scan(&id)
+	q := db.Query{
+		Name:     "chat_repository.DeleteChat",
+		QueryRaw: query,
+	}
+
+	err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&id)
 	if err != nil {
 		log.Println(color.HiMagentaString("error while deleting the chat: %v, with ctx: %v", err, ctx))
 		return nil, err
@@ -97,7 +107,12 @@ func (r *repo) SendMessage(ctx context.Context, message *model.Message) (*emptyp
 		log.Fatalf("failed to build query: %v", err)
 	}
 
-	_, err = r.db.Exec(ctx, query, args...)
+	q := db.Query{
+		Name:     "chat_repository.SendMessage",
+		QueryRaw: query,
+	}
+
+	_, err = r.db.DB().ExecContext(ctx, q, args...)
 	if err != nil {
 		log.Println(color.HiMagentaString("error while sending the message: %v, with ctx: %v", err, ctx))
 		return nil, err
