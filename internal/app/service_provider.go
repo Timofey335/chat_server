@@ -7,6 +7,7 @@ import (
 	"github.com/Timofey335/chat-server/internal/api/chat"
 	"github.com/Timofey335/chat-server/internal/client/db"
 	"github.com/Timofey335/chat-server/internal/client/db/pg"
+	"github.com/Timofey335/chat-server/internal/client/db/transaction"
 	"github.com/Timofey335/chat-server/internal/closer"
 	"github.com/Timofey335/chat-server/internal/config"
 	"github.com/Timofey335/chat-server/internal/config/env"
@@ -21,6 +22,7 @@ type serviceProvider struct {
 	grpcConfig config.GRPCConfig
 
 	dbClient       db.Client
+	txManager      db.TxManager
 	chatRepository repository.ChatRepository
 
 	chatService service.ChatService
@@ -78,6 +80,14 @@ func (s *serviceProvider) DBClient(ctx context.Context) db.Client {
 
 }
 
+func (s *serviceProvider) TxManager(ctx context.Context) db.TxManager {
+	if s.txManager == nil {
+		s.txManager = transaction.NewTransactionManager(s.DBClient(ctx).DB())
+	}
+
+	return s.txManager
+}
+
 func (s *serviceProvider) ChatRepository(ctx context.Context) repository.ChatRepository {
 	if s.chatRepository == nil {
 		s.chatRepository = chatRepository.NewChat(s.DBClient(ctx))
@@ -88,7 +98,7 @@ func (s *serviceProvider) ChatRepository(ctx context.Context) repository.ChatRep
 
 func (s *serviceProvider) ChatService(ctx context.Context) service.ChatService {
 	if s.chatService == nil {
-		s.chatService = chatService.NewService(s.ChatRepository(ctx))
+		s.chatService = chatService.NewService(s.ChatRepository(ctx), s.TxManager(ctx))
 	}
 
 	return s.chatService
