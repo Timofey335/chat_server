@@ -7,6 +7,7 @@ import (
 	desc "github.com/Timofey335/chat-server/pkg/chat_server_v1"
 )
 
+// CreateChat - создает новый чат
 func (i *Implementation) CreateChat(ctx context.Context, req *desc.CreateChatRequest) (*desc.CreateChatResponse, error) {
 	chatObj, err := i.chatService.CreateChat(ctx, converter.ToChatCreateFromDesc(req))
 	if err != nil {
