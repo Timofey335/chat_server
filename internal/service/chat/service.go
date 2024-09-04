@@ -13,6 +13,7 @@ type serv struct {
 	txManager      db.TxManager
 }
 
+// NewService - создает новый экземпляр serv
 func NewService(chatRepository repository.ChatRepository, txManager db.TxManager) *serv {
 	return &serv{
 		chatRepository: chatRepository,

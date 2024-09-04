@@ -5,6 +5,7 @@ import (
 	desc "github.com/Timofey335/chat-server/pkg/chat_server_v1"
 )
 
+// ToChatCreateFromDesc - конвертирует данные из desc (GRPC) для сервисного слоя
 func ToChatCreateFromDesc(chat *desc.CreateChatRequest) *model.Chat {
 	return &model.Chat{
 		Name:  chat.Chatname,
@@ -12,6 +13,7 @@ func ToChatCreateFromDesc(chat *desc.CreateChatRequest) *model.Chat {
 	}
 }
 
+// ToSendMessageFromDesc - конвертирует данные из desc (GRPC) для сервисного слоя
 func ToSendMessageFromDesc(message *desc.SendMessageRequest) *model.Message {
 	return &model.Message{
 		UserId:    message.FromId,

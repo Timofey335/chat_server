@@ -15,11 +15,13 @@ import (
 	desc "github.com/Timofey335/chat-server/pkg/chat_server_v1"
 )
 
+// App - структура с объектами serviceProvider и grpcServer
 type App struct {
 	serviceProvider *serviceProvider
 	grpcServer      *grpc.Server
 }
 
+// NewApp - создает объект структуры App и вызывает функцию initDeps
 func NewApp(ctx context.Context, cfg string) (*App, error) {
 	a := &App{}
 
@@ -30,6 +32,7 @@ func NewApp(ctx context.Context, cfg string) (*App, error) {
 	return a, nil
 }
 
+// Run - запускает GRPC сервер
 func (a *App) Run() error {
 	defer func() {
 		closer.CloseAll()

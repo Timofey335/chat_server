@@ -9,6 +9,7 @@ import (
 	"github.com/Timofey335/chat-server/internal/model"
 )
 
+// CreateChat - создает новый чат
 func (s *serv) CreateChat(ctx context.Context, chat *model.Chat) (int64, error) {
 	var id int64
 	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {

@@ -32,11 +32,12 @@ type repo struct {
 	db db.Client
 }
 
+// NewChat - создает новый объект repo
 func NewChat(db db.Client) repository.ChatRepository {
 	return &repo{db: db}
 }
 
-// CreateChat - create a new chat
+// CreateChat - создает новый чат
 func (r *repo) CreateChat(ctx context.Context, chat *model.Chat) (int64, error) {
 	var chatId int64
 
@@ -63,7 +64,7 @@ func (r *repo) CreateChat(ctx context.Context, chat *model.Chat) (int64, error) 
 	return chatId, nil
 }
 
-// DeleteChat - delete the chat by id
+// DeleteChat - удаляет чат
 func (r *repo) DeleteChat(ctx context.Context, chatId int64) (*emptypb.Empty, error) {
 	var id int64
 
@@ -93,7 +94,7 @@ func (r *repo) DeleteChat(ctx context.Context, chatId int64) (*emptypb.Empty, er
 	return &emptypb.Empty{}, nil
 }
 
-// SendMessage - send message to the server
+// SendMessage - отправляет сообщение в чат
 func (r *repo) SendMessage(ctx context.Context, message *model.Message) (*emptypb.Empty, error) {
 	builderInsert := sq.Insert(tableMessages).
 		PlaceholderFormat(sq.Dollar).
