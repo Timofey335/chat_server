@@ -8,41 +8,29 @@ import (
 	"github.com/brianvoe/gofakeit"
 	"github.com/gojuno/minimock/v3"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/Timofey335/chat-server/internal/api/chat"
-	"github.com/Timofey335/chat-server/internal/model"
 	"github.com/Timofey335/chat-server/internal/service"
 	serviceMocks "github.com/Timofey335/chat-server/internal/service/mocks"
 	desc "github.com/Timofey335/chat-server/pkg/chat_server_v1"
 )
 
-func TestCreateChat(t *testing.T) {
+func TestDeleteChat(t *testing.T) {
 	type chatServiceMockFunc func(mc *minimock.Controller) service.ChatService
 
 	type args struct {
 		ctx context.Context
-		req *desc.CreateChatRequest
+		req *desc.DeleteChatRequest
 	}
 
 	var (
 		ctx = context.Background()
 		mc  = minimock.NewController(t)
 
-		id        = gofakeit.Int64()
-		name      = gofakeit.Name()
-		usernames = []string{"Bob", "Maria", "John"}
+		id = gofakeit.Int64()
 
-		req = &desc.CreateChatRequest{
-			Chatname:  name,
-			Usernames: usernames,
-		}
-
-		chatModel = &model.Chat{
-			Name:  name,
-			Users: usernames,
-		}
-
-		res = &desc.CreateChatResponse{
+		req = &desc.DeleteChatRequest{
 			Id: id,
 		}
 
@@ -54,7 +42,7 @@ func TestCreateChat(t *testing.T) {
 	tests := []struct {
 		name            string
 		args            args
-		want            *desc.CreateChatResponse
+		want            *emptypb.Empty
 		err             error
 		userServiceMock chatServiceMockFunc
 	}{
@@ -64,11 +52,11 @@ func TestCreateChat(t *testing.T) {
 				ctx: ctx,
 				req: req,
 			},
-			want: res,
+			want: &emptypb.Empty{},
 			err:  nil,
 			userServiceMock: func(mc *minimock.Controller) service.ChatService {
 				mock := serviceMocks.NewChatServiceMock(mc)
-				mock.CreateChatMock.Expect(ctx, chatModel).Return(id, nil)
+				mock.DeleteChatMock.Expect(ctx, id).Return(&emptypb.Empty{}, nil)
 				return mock
 			},
 		},
@@ -82,7 +70,7 @@ func TestCreateChat(t *testing.T) {
 			err:  serviceErr,
 			userServiceMock: func(mc *minimock.Controller) service.ChatService {
 				mock := serviceMocks.NewChatServiceMock(mc)
-				mock.CreateChatMock.Expect(ctx, chatModel).Return(0, serviceErr)
+				mock.DeleteChatMock.Expect(ctx, id).Return(nil, serviceErr)
 				return mock
 			},
 		},
@@ -94,7 +82,7 @@ func TestCreateChat(t *testing.T) {
 			chatServiceMock := tt.userServiceMock(mc)
 			api := chat.NewImplementation(chatServiceMock)
 
-			resHandler, err := api.CreateChat(tt.args.ctx, tt.args.req)
+			resHandler, err := api.DeleteChat(tt.args.ctx, tt.args.req)
 			require.Equal(t, tt.err, err)
 			require.Equal(t, tt.want, resHandler)
 		})

@@ -8,6 +8,8 @@ import (
 	"github.com/brianvoe/gofakeit"
 	"github.com/gojuno/minimock/v3"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/Timofey335/chat-server/internal/api/chat"
 	"github.com/Timofey335/chat-server/internal/model"
@@ -16,34 +18,35 @@ import (
 	desc "github.com/Timofey335/chat-server/pkg/chat_server_v1"
 )
 
-func TestCreateChat(t *testing.T) {
+func TestSendMessage(t *testing.T) {
 	type chatServiceMockFunc func(mc *minimock.Controller) service.ChatService
 
 	type args struct {
 		ctx context.Context
-		req *desc.CreateChatRequest
+		req *desc.SendMessageRequest
 	}
 
 	var (
 		ctx = context.Background()
 		mc  = minimock.NewController(t)
 
-		id        = gofakeit.Int64()
-		name      = gofakeit.Name()
-		usernames = []string{"Bob", "Maria", "John"}
+		fromId    = gofakeit.Int64()
+		chatId    = gofakeit.Int64()
+		text      = gofakeit.Question()
+		timestamp = timestamppb.Now()
 
-		req = &desc.CreateChatRequest{
-			Chatname:  name,
-			Usernames: usernames,
+		req = &desc.SendMessageRequest{
+			FromId:    fromId,
+			ChatId:    chatId,
+			Text:      text,
+			Timestamp: timestamp,
 		}
 
-		chatModel = &model.Chat{
-			Name:  name,
-			Users: usernames,
-		}
-
-		res = &desc.CreateChatResponse{
-			Id: id,
+		messageModel = &model.Message{
+			UserId:    fromId,
+			ChatId:    chatId,
+			Text:      text,
+			CreatedAt: timestamp.AsTime(),
 		}
 
 		serviceErr = fmt.Errorf("service error")
@@ -54,7 +57,7 @@ func TestCreateChat(t *testing.T) {
 	tests := []struct {
 		name            string
 		args            args
-		want            *desc.CreateChatResponse
+		want            *emptypb.Empty
 		err             error
 		userServiceMock chatServiceMockFunc
 	}{
@@ -64,11 +67,11 @@ func TestCreateChat(t *testing.T) {
 				ctx: ctx,
 				req: req,
 			},
-			want: res,
+			want: &emptypb.Empty{},
 			err:  nil,
 			userServiceMock: func(mc *minimock.Controller) service.ChatService {
 				mock := serviceMocks.NewChatServiceMock(mc)
-				mock.CreateChatMock.Expect(ctx, chatModel).Return(id, nil)
+				mock.SendMessageMock.Expect(ctx, messageModel).Return(&emptypb.Empty{}, nil)
 				return mock
 			},
 		},
@@ -82,7 +85,7 @@ func TestCreateChat(t *testing.T) {
 			err:  serviceErr,
 			userServiceMock: func(mc *minimock.Controller) service.ChatService {
 				mock := serviceMocks.NewChatServiceMock(mc)
-				mock.CreateChatMock.Expect(ctx, chatModel).Return(0, serviceErr)
+				mock.SendMessageMock.Expect(ctx, messageModel).Return(nil, serviceErr)
 				return mock
 			},
 		},
@@ -91,12 +94,13 @@ func TestCreateChat(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			chatServiceMock := tt.userServiceMock(mc)
-			api := chat.NewImplementation(chatServiceMock)
+			userServiceMock := tt.userServiceMock(mc)
+			api := chat.NewImplementation(userServiceMock)
 
-			resHandler, err := api.CreateChat(tt.args.ctx, tt.args.req)
+			resHandler, err := api.SendMessage(tt.args.ctx, tt.args.req)
 			require.Equal(t, tt.err, err)
 			require.Equal(t, tt.want, resHandler)
 		})
+
 	}
 }
