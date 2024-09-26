@@ -1,13 +1,15 @@
 module github.com/Timofey335/chat-server
 
-go 1.22.5
+go 1.23.1
 
 require (
 	github.com/Masterminds/squirrel v1.5.4 // indirect
+	github.com/Timofey335/platform_common v0.0.0-20240915191349-d34d7c6fd060 // indirect
 	github.com/brianvoe/gofakeit v3.18.0+incompatible // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/georgysavva/scany v1.2.2 // indirect
+	github.com/gojuno/minimock/v3 v3.4.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.14.3 // indirect

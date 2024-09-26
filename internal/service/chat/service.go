@@ -1,7 +1,8 @@
 package chat
 
 import (
-	"github.com/Timofey335/chat-server/internal/client/db"
+	"github.com/Timofey335/platform_common/pkg/db"
+
 	"github.com/Timofey335/chat-server/internal/repository"
 	def "github.com/Timofey335/chat-server/internal/service"
 )

@@ -4,11 +4,12 @@ import (
 	"context"
 	"log"
 
+	"github.com/Timofey335/platform_common/pkg/closer"
+	"github.com/Timofey335/platform_common/pkg/db"
+	"github.com/Timofey335/platform_common/pkg/db/pg"
+	"github.com/Timofey335/platform_common/pkg/db/transaction"
+
 	"github.com/Timofey335/chat-server/internal/api/chat"
-	"github.com/Timofey335/chat-server/internal/client/db"
-	"github.com/Timofey335/chat-server/internal/client/db/pg"
-	"github.com/Timofey335/chat-server/internal/client/db/transaction"
-	"github.com/Timofey335/chat-server/internal/closer"
 	"github.com/Timofey335/chat-server/internal/config"
 	"github.com/Timofey335/chat-server/internal/config/env"
 	"github.com/Timofey335/chat-server/internal/repository"
