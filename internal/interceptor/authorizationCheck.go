@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 
 	descAccess "github.com/Timofey335/chat-server/pkg/access_v1"
@@ -21,12 +21,17 @@ const servicePort = 50051
 func AuthorizarionCheck(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	flag.Parse()
 
+	creds, err := credentials.NewClientTLSFromFile("cert/service.pem", "")
+	if err != nil {
+		log.Fatalf("could not process the credentials: %v", err)
+	}
+
 	md := metadata.New(map[string]string{"Authorization": "Bearer " + *accessToken})
 	ctx = metadata.NewOutgoingContext(ctx, md)
 
 	conn, err := grpc.Dial(
 		fmt.Sprintf(":%d", servicePort),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithTransportCredentials(creds),
 	)
 	if err != nil {
 		log.Fatalf("failed to dial GRPC client: %v", err)
